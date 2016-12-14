@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+
 public class RMQReceiver {
 
     public static void main(String[] args) throws TimeoutException, IOException {
@@ -17,15 +18,16 @@ public class RMQReceiver {
         factory.setHost("localhost");
         try (Connection connection = factory.newConnection()) {
             Channel channel = connection.createChannel();
-
+            Map<String, Object> arg = new HashMap<>();
+            arg.put("x-max-length", 10);
             
-            channel.queueDeclare("MyQeue", false, false, false, null);
+            channel.queueDeclare("LimitedQeue", false, false, false, arg);
             
             byte[] inputbyte;
             String input = "";
 
             do {
-                GetResponse response = channel.basicGet("MyQeue", false);
+                GetResponse response = channel.basicGet("LimitedQeue", false);
                 if (response != null) {
                     byte[] body = response.getBody();
                     String message = new String(body);
